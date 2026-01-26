@@ -9,6 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import Header from "@/components/Header";
 
 const App = () => {
   const featuredAnime = [
@@ -43,14 +44,7 @@ const App = () => {
             >
               <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <View style={{ width: 48, height: 48, backgroundColor: "#dc2626", borderRadius: 999, alignItems: "center", justifyContent: "center", marginRight: 12 }}>
-                      <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>OS</Text>
-                    </View>
-                    <Text style={{ color: "#ffffff", fontSize: 32, fontWeight: "bold" }}>
-                      Otaku<Text style={{ color: "#dc2626" }}>Score</Text>
-                    </Text>
-                  </View>
+                  <Header/>
                   <TouchableOpacity style={{ backgroundColor: "#1a1a1a", padding: 12, borderRadius: 999 }} activeOpacity={0.7}>
                     <Ionicons name="menu" size={24} color="#dc2626" />
                   </TouchableOpacity>
