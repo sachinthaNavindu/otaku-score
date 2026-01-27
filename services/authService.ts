@@ -9,7 +9,7 @@ export const login = async(passwordOrUsername:string,password:string)=>{
 
         if(!passwordOrUsername.includes("@")){
             const userRef = collection(db,"users")
-            const q = query(userRef,where("username","==",passwordOrUsername))
+            const q = query(userRef,where("username","==",passwordOrUsername.toLowerCase()))
             const querySnapShot = await getDocs(q)
 
             if(querySnapShot.empty){
@@ -18,6 +18,7 @@ export const login = async(passwordOrUsername:string,password:string)=>{
 
             const userDoc = querySnapShot.docs[0].data()
             emailtoUse = userDoc.email
+
         }
 
         const userCredential = await signInWithEmailAndPassword(auth,emailtoUse,password)
@@ -25,14 +26,17 @@ export const login = async(passwordOrUsername:string,password:string)=>{
         if(!userCredential.user.emailVerified){
             throw new Error("Please Verify Your Email Before Logging in")
         }
-        await updateDoc(doc(db, "users", userCredential.user.uid), {
-            emailVerified: true,
-        })
 
         return userCredential
 
     }catch(error:any){
-        throw new Error(error.message)
+        if (error.code === "auth/wrong-password") {
+          throw new Error("Incorrect password");
+        }
+        if (error.code === "auth/user-not-found") {
+            throw new Error("No user found with this email");
+        }
+            throw new Error(error.message || "Login failed");
     }
 }
 
@@ -52,7 +56,7 @@ export const registerUser = async (
     await sendEmailVerification(userCred.user)
 
     setDoc(doc(db,"users",userCred.user.uid),{
-        username,
+        username:username.toLowerCase(),
         role:"",
         email,
         emailVerified:false,

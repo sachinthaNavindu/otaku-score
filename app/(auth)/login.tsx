@@ -7,6 +7,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,11 +15,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Header from "@/components/Header";
+import { login } from "@/services/authService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async() =>{
+    if(!email || !password){
+      Alert.alert("Missing Fields","Please Fill Email/Username & Password")
+      return
+    }
+
+    try{
+      await login(email,password)
+      Alert.alert("Welcome Back","Login Successful")
+    }catch(error:any){
+      Alert.alert("Login Failed",error.message)
+    }
+  } 
 
   return (
     <SafeAreaProvider>
@@ -116,6 +132,7 @@ const Login = () => {
                     </View>
 
                     <TouchableOpacity 
+                      onPress={handleLogin}
                       style={{ 
                         backgroundColor: "#dc2626", 
                         paddingVertical: 18, 
