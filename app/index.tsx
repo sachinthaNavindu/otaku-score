@@ -10,11 +10,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, router } from "expo-router";
 import Header from "@/components/Header";
+import { useEffect, useState } from "react";
+import { getToken } from "@/services/tokenService";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 
-const App = () => {
-  const {user,loading} = useAuth()
+const Index = () => {
+  const [loading,setLoading] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+  const {user} = useAuth()
   const featuredAnime = [
     { id: 1, title: "Attack on Titan", rating: 9.0 },
     { id: 2, title: "Demon Slayer", rating: 8.7 },
@@ -23,16 +26,22 @@ const App = () => {
   ];
 
   useEffect(()=>{
-    if(!loading && user){
-      router.replace("/(dashboard)/home")
-    }else{
-      alert("no user")
+    const checkAuth = async ()=>{
+      const token = await getToken()
+      setIsLoggedIn(!!token)
+      setLoading(false)
     }
-  },[loading,user])
+    checkAuth()
+  },[])
 
-  if(!loading && user){
-    return <Redirect href={"/(dashboard)/home"}/>
+  if(loading){
+    return null
   }
+
+  if (user) {
+    return <Redirect href="/(dashboard)/home" />
+  }
+
 
   type ActionKey = "login" | "signup" | "trending"
 
@@ -233,4 +242,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Index;
