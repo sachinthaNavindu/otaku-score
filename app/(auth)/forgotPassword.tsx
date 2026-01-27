@@ -14,15 +14,33 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Header from "@/components/Header";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/services/firebase";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState<"request" | "verify">("request");
+
+  const handleSendVerificationCode = async()=>{
+    if(!email){
+      alert("Please Enter Your Email")
+      return
+    }
+
+    try{
+      await sendPasswordResetEmail(auth,email)
+      alert("Password Reset Link Sent! Check Your Email")
+      router.push("/(auth)/login")
+    }catch(error:any){
+      if (error.code === "auth/user-not-found") {
+        alert("No account found with this email");
+    } else if (error.code === "auth/invalid-email") {
+        alert("Invalid email address");
+    } else {
+        alert("Failed to send reset email");
+    }
+    }
+  }
 
   return (
     <SafeAreaProvider>
@@ -57,12 +75,10 @@ const ForgotPassword = () => {
                     <Header showBackButton={true} />
                     
                     <Text style={{ color: "#ffffff", fontSize: 36, fontWeight: "bold", marginBottom: 8 }}>
-                      {step === "request" ? "Recover Your Account" : "Reset Password"}
+                         Recover Your Account
                     </Text>
                     <Text style={{ color: "#9ca3af", fontSize: 16, marginBottom: 40 }}>
-                      {step === "request" 
-                        ? "Enter your email to receive a verification code" 
-                        : "Enter the verification code and set a new password"}
+                         Enter your email to receive a link to reset your password
                     </Text>
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 32 }}>
@@ -83,51 +99,24 @@ const ForgotPassword = () => {
                           fontSize: 14, 
                           fontWeight: "600" 
                         }}>
-                          Request Code
+                          Request Link
                         </Text>
                       </View>
                       
                       <View style={{ width: 40, height: 1, backgroundColor: "#374151", marginHorizontal: 8 }} />
-                      
-                      <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-                        <View style={{ 
-                          width: 32, 
-                          height: 32, 
-                          borderRadius: 16, 
-                          backgroundColor: step === "verify" ? "#dc2626" : "#374151",
-                          alignItems: "center", 
-                          justifyContent: "center" 
-                        }}>
-                          <Text style={{ 
-                            color: step === "verify" ? "#ffffff" : "#9ca3af", 
-                            fontWeight: "bold", 
-                            fontSize: 14 
-                          }}>
-                            2
-                          </Text>
-                        </View>
-                        <Text style={{ 
-                          color: step === "verify" ? "#ffffff" : "#9ca3af", 
-                          marginLeft: 8, 
-                          fontSize: 14, 
-                          fontWeight: "600" 
-                        }}>
-                          Reset Password
-                        </Text>
-                      </View>
                     </View>
 
                     {step === "request" && (
                       <>
                         <View style={{ marginBottom: 32 }}>
                           <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "600", marginBottom: 8 }}>
-                            Email or Username
+                            Email
                           </Text>
                           <View style={{ backgroundColor: "#1a1a1a", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, flexDirection: "row", alignItems: "center" }}>
                             <Ionicons name="mail-outline" size={20} color="#dc2626" />
                             <TextInput
                               style={{ flex: 1, color: "#ffffff", fontSize: 16, marginLeft: 12 }}
-                              placeholder="Enter your email or username"
+                              placeholder="Enter your email"
                               placeholderTextColor="#666666"
                               value={email}
                               onChangeText={setEmail}
@@ -137,7 +126,7 @@ const ForgotPassword = () => {
                             />
                           </View>
                           <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 8 }}>
-                            We'll send a 6-digit verification code to your email
+                            We'll send a Link to your email to reset your password
                           </Text>
                         </View>
 
@@ -154,7 +143,8 @@ const ForgotPassword = () => {
                             elevation: 8,
                           }}
                           activeOpacity={0.8}
-                          onPress={() => setStep("verify")}
+                          onPress={handleSendVerificationCode}
+                          
                         >
                           <Text style={{ 
                             color: "#ffffff", 
@@ -162,129 +152,13 @@ const ForgotPassword = () => {
                             fontWeight: "bold", 
                             fontSize: 18 
                           }}>
-                            Send Verification Code
+                            Send Reset Link
                           </Text>
                         </TouchableOpacity>
                       </>
                     )}
 
-                    {step === "verify" && (
-                      <>
-                        <View style={{ marginBottom: 24 }}>
-                          <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "600", marginBottom: 8 }}>
-                            Verification Code
-                          </Text>
-                          <View style={{ backgroundColor: "#1a1a1a", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, flexDirection: "row", alignItems: "center" }}>
-                            <Ionicons name="key-outline" size={20} color="#dc2626" />
-                            <TextInput
-                              style={{ flex: 1, color: "#ffffff", fontSize: 16, marginLeft: 12 }}
-                              placeholder="Enter 6-digit code"
-                              placeholderTextColor="#666666"
-                              value={verificationCode}
-                              onChangeText={setVerificationCode}
-                              selectionColor="#dc2626"
-                              keyboardType="number-pad"
-                              maxLength={6}
-                            />
-                          </View>
-                          <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 8 }}>
-                            Check your email for the verification code
-                          </Text>
-                        </View>
-
-                        <View style={{ marginBottom: 20 }}>
-                          <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "600", marginBottom: 8 }}>
-                            New Password
-                          </Text>
-                          <View style={{ backgroundColor: "#1a1a1a", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, flexDirection: "row", alignItems: "center" }}>
-                            <Ionicons name="lock-closed-outline" size={20} color="#dc2626" />
-                            <TextInput
-                              style={{ flex: 1, color: "#ffffff", fontSize: 16, marginLeft: 12 }}
-                              placeholder="Enter new password"
-                              placeholderTextColor="#666666"
-                              value={newPassword}
-                              onChangeText={setNewPassword}
-                              selectionColor="#dc2626"
-                              secureTextEntry={!showNewPassword}
-                            />
-                            <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
-                              <Ionicons 
-                                name={showNewPassword ? "eye-off-outline" : "eye-outline"} 
-                                size={20} 
-                                color="#dc2626" 
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-
-                        <View style={{ marginBottom: 32 }}>
-                          <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "600", marginBottom: 8 }}>
-                            Confirm Password
-                          </Text>
-                          <View style={{ backgroundColor: "#1a1a1a", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, flexDirection: "row", alignItems: "center" }}>
-                            <Ionicons name="lock-closed-outline" size={20} color="#dc2626" />
-                            <TextInput
-                              style={{ flex: 1, color: "#ffffff", fontSize: 16, marginLeft: 12 }}
-                              placeholder="Confirm new password"
-                              placeholderTextColor="#666666"
-                              value={confirmPassword}
-                              onChangeText={setConfirmPassword}
-                              selectionColor="#dc2626"
-                              secureTextEntry={!showConfirmPassword}
-                            />
-                            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                              <Ionicons 
-                                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
-                                size={20} 
-                                color="#dc2626" 
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 8 }}>
-                            Passwords must match
-                          </Text>
-                        </View>
-
-                        <TouchableOpacity 
-                          style={{ 
-                            backgroundColor: "#10b981", 
-                            paddingVertical: 18, 
-                            borderRadius: 16,
-                            marginBottom: 24,
-                            shadowColor: "#10b981",
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.3,
-                            shadowRadius: 8,
-                            elevation: 8,
-                          }}
-                          activeOpacity={0.8}
-                          onPress={() => {
-                            router.push("/(auth)/login");
-                          }}
-                        >
-                          <Text style={{ 
-                            color: "#ffffff", 
-                            textAlign: "center", 
-                            fontWeight: "bold", 
-                            fontSize: 18 
-                          }}>
-                            Reset Password
-                          </Text>
-                        </TouchableOpacity>
-
-                        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 32 }}>
-                          <Text style={{ color: "#9ca3af", fontSize: 14 }}>
-                            Didn't receive the code?{" "}
-                          </Text>
-                          <TouchableOpacity>
-                            <Text style={{ color: "#dc2626", fontSize: 14, fontWeight: "600" }}>
-                              Resend Code
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      </>
-                    )}
-
+                   
                     <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 16 }}>
                       <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
                         <Text style={{ color: "#dc2626", fontSize: 16, fontWeight: "600" }}>
