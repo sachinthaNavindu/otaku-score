@@ -7,6 +7,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,14 +15,45 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Header from "@/components/Header";
+import { useLoader } from "@/hooks/useLoader";
+import { registerUser } from "@/services/authService";
 
 const Register = () => {
+  const {showLoader,hideLoader,isLoading} = useLoader()
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleRegister = async()=>{
+    if(isLoading){
+        return
+    }
+    if(!username || !email || !password){
+        Alert.alert("Fill All The Fields to Continue...")
+        return
+    }
+
+    if(password !== confirmPassword){
+        Alert.alert("password doesn't match...")
+        return
+    }
+    try{
+        showLoader()
+        await registerUser(username,email,password)
+        Alert.alert("Account Created..!",
+            "Verify your email We sent a verification link to your email. Please verify before logging in"
+        )
+        router.push("/(auth)/login")
+    }catch(error:any){
+        Alert.alert("Registration Failed...",error.message)
+        console.log(error)
+    }finally{
+        hideLoader()
+    }
+  }
 
   return (
     <SafeAreaProvider>
@@ -157,18 +189,21 @@ const Register = () => {
                     </View>
 
                     <TouchableOpacity 
-                      style={{ 
-                        backgroundColor: "#dc2626", 
-                        paddingVertical: 18, 
-                        borderRadius: 16,
-                        marginBottom: 24,
-                        shadowColor: "#dc2626",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 8,
-                        elevation: 8,
-                      }}
-                      activeOpacity={0.8}
+                        onPress={handleRegister}
+                        disabled={isLoading}
+                        style={{ 
+                            backgroundColor: isLoading ? "#7f1d1d" : "#dc2626", 
+                            paddingVertical: 18, 
+                            borderRadius: 16,
+                            marginBottom: 24,
+                            shadowColor: "#dc2626",
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                            elevation: 8,
+                            opacity: isLoading ? 0.7 : 1,
+                        }}
+                        activeOpacity={0.8}
                     >
                       <Text style={{ 
                         color: "#ffffff", 

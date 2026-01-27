@@ -53,6 +53,7 @@ const ForgotPassword = () => {
               >
                 <View style={{ flex: 1, justifyContent: "center" }}>
                   <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }}>
+                 
                     <Header showBackButton={true} />
                     
                     <Text style={{ color: "#ffffff", fontSize: 36, fontWeight: "bold", marginBottom: 8 }}>
