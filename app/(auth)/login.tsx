@@ -13,14 +13,15 @@ import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import Header from "@/components/Header";
 import { login } from "@/services/authService";
+import { saveToken } from "@/services/tokenService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);  
 
   const handleLogin = async() =>{
     if(!email || !password){
@@ -29,14 +30,19 @@ const Login = () => {
     }
 
     try{
-      await login(email,password)
+      const userCredential = await login(email,password)
+      const token = await userCredential.user.getIdToken()
+   
+      await saveToken(token)
+
       Alert.alert("Welcome Back","Login Successful")
+      router.push("/(dashboard)/home")
     }catch(error:any){
       Alert.alert("Login Failed",error.message)
     }
   } 
 
-  return (
+   return (
     <SafeAreaProvider>
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
@@ -213,6 +219,7 @@ const Login = () => {
       </KeyboardAvoidingView>
     </SafeAreaProvider>
   );
+  
 };
 
 export default Login;

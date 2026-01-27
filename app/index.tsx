@@ -8,16 +8,31 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const App = () => {
+  const {user,loading} = useAuth()
   const featuredAnime = [
     { id: 1, title: "Attack on Titan", rating: 9.0 },
     { id: 2, title: "Demon Slayer", rating: 8.7 },
     { id: 3, title: "Jujutsu Kaisen", rating: 8.6 },
     { id: 4, title: "One Piece", rating: 8.9 },
   ];
+
+  useEffect(()=>{
+    if(!loading && user){
+      router.replace("/(dashboard)/home")
+    }else{
+      alert("no user")
+    }
+  },[loading,user])
+
+  if(!loading && user){
+    return <Redirect href={"/(dashboard)/home"}/>
+  }
 
   type ActionKey = "login" | "signup" | "trending"
 
@@ -27,6 +42,7 @@ const App = () => {
     trending:"/trending"
   }
 
+  
   return (
     <SafeAreaProvider>
       <View style={{ flex: 1, backgroundColor: "#000000" }}>
@@ -186,7 +202,11 @@ const App = () => {
                         key={index} 
                         style={{ alignItems: "center" }}
                         activeOpacity={0.7}
-                        onPress={()=> router.push(actionRoutes[action.action as ActionKey])}
+                        onPress={()=>{
+                          if(action.action){
+                            router.push(actionRoutes[action.action as ActionKey]);
+                          }
+                        }}
                       >
                         <Ionicons 
                           name={action.icon as any} 
