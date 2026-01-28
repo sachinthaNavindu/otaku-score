@@ -16,12 +16,14 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, router } from "expo-router";
 import Header from "@/components/Header";
 import { login } from "@/services/authService";
-import { saveToken } from "@/services/tokenService";
+import { useLoader } from "@/hooks/useLoader";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);  
+
+  const {showLoader,hideLoader,isLoading} = useLoader()
 
   const handleLogin = async() =>{
     if(!email || !password){
@@ -30,15 +32,14 @@ const Login = () => {
     }
 
     try{
-      const userCredential = await login(email,password)
-      const token = await userCredential.user.getIdToken()
-   
-      await saveToken(token)
-
-      Alert.alert("Welcome Back","Login Successful")
-      router.push("/(dashboard)/home")
+     showLoader()
+     await login(email,password)
+     Alert.alert("Welcome Back","Login Successful")
+     router.replace("/(dashboard)")
     }catch(error:any){
       Alert.alert("Login Failed",error.message)
+    }finally{
+      hideLoader()
     }
   } 
 

@@ -3,41 +3,8 @@ import { collection, doc, getDocs, query, updateDoc,setDoc, where } from "fireba
 import { auth, db } from "./firebase";
 
 
-export const login = async(passwordOrUsername:string,password:string)=>{
-    try{
-        let emailtoUse = passwordOrUsername
-
-        if(!passwordOrUsername.includes("@")){
-            const userRef = collection(db,"users")
-            const q = query(userRef,where("username","==",passwordOrUsername.toLowerCase()))
-            const querySnapShot = await getDocs(q)
-
-            if(querySnapShot.empty){
-                throw new Error("User not found")
-            }
-
-            const userDoc = querySnapShot.docs[0].data()
-            emailtoUse = userDoc.email
-
-        }
-
-        const userCredential = await signInWithEmailAndPassword(auth,emailtoUse,password)
-
-        if(!userCredential.user.emailVerified){
-            throw new Error("Please Verify Your Email Before Logging in")
-        }
-
-        return userCredential
-
-    }catch(error:any){
-        if (error.code === "auth/wrong-password") {
-          throw new Error("Incorrect password");
-        }
-        if (error.code === "auth/user-not-found") {
-            throw new Error("No user found with this email");
-        }
-            throw new Error(error.message || "Login failed");
-    }
+export const login = async(email:string,password:string)=>{
+      return await signInWithEmailAndPassword(auth, email, password)
 }
 
 export const registerUser = async (
