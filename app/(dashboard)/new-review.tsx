@@ -246,7 +246,6 @@ const NewReview = () => {
                 </View>
               </View>
 
-              {/* Guidelines Section - MOVED HERE from inside Modal */}
               <View style={{ paddingHorizontal: 24, marginBottom: 32 }}>
                 <View style={{ backgroundColor: "#1a1a1a", borderRadius: 12, padding: 16 }}>
                   <Text style={{ color: "#fbbf24", fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>
@@ -291,7 +290,6 @@ const NewReview = () => {
         </LinearGradient>
       </View>
 
-      {/* Modal for Anime Selection */}
       <Modal 
         visible={showDropdown} 
         transparent 
