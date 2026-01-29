@@ -8,6 +8,9 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import MostPopular from "@/components/MostPopular";
+import Header from "@/components/Header";
+import TopRated from "@/components/TopRated";
 
 const Index = () => {
   const popularAnime = [
@@ -42,22 +45,7 @@ const Index = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
           >
             <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={{ width: 44, height: 44, backgroundColor: "#dc2626", borderRadius: 999, alignItems: "center", justifyContent: "center", marginRight: 12 }}>
-                    <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 18 }}>OS</Text>
-                  </View>
-                  <Text style={{ color: "#ffffff", fontSize: 28, fontWeight: "bold" }}>
-                    Otaku<Text style={{ color: "#dc2626" }}>Score</Text>
-                  </Text>
-                </View>
-                
-                <TouchableOpacity activeOpacity={0.7}>
-                  <View style={{ width: 44, height: 44, backgroundColor: "#1a1a1a", borderRadius: 999, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                    <Ionicons name="person" size={24} color="#dc2626" />
-                  </View>
-                </TouchableOpacity>
-              </View>
+              <Header/>
 
               <View style={{ marginTop: 24 }}>
                 <Text style={{ color: "#ffffff", fontSize: 32, fontWeight: "bold", marginBottom: 8 }}>
@@ -89,89 +77,20 @@ const Index = () => {
               </View>
             </View>
 
-            <View style={{ paddingHorizontal: 20, marginBottom: 32 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <Text style={{ color: "#ffffff", fontSize: 24, fontWeight: "bold" }}>
-                  🔥 Most Popular
-                </Text>
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={{ color: "#dc2626", fontWeight: "600" }}>See All</Text>
-                </TouchableOpacity>
-              </View>
+            <MostPopular
+              data={popularAnime}
+              onSeeAll={() => {
+                console.log("Navigate to popular anime list");
+              }}
+            />
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
-                {popularAnime.map((anime) => (
-                  <TouchableOpacity
-                    key={anime.id}
-                    style={{ width: 140, backgroundColor: "#1a1a1a", borderRadius: 16, overflow: "hidden", marginRight: 16 }}
-                    activeOpacity={0.8}
-                  >
-                    <View style={{ height: 100, backgroundColor: "#450a0a", alignItems: "center", justifyContent: "center" }}>
-                      <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "bold", textAlign: "center", paddingHorizontal: 8 }}>
-                        {anime.title}
-                      </Text>
-                    </View>
-                    <View style={{ padding: 12 }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                          <Ionicons name="star" size={14} color="#fbbf24" />
-                          <Text style={{ color: "#ffffff", fontWeight: "bold", marginLeft: 4 }}>{anime.rating}</Text>
-                        </View>
-                        <Text style={{ color: "#9ca3af", fontSize: 12 }}>{anime.episodes} eps</Text>
-                      </View>
-                      <TouchableOpacity style={{ marginTop: 8 }} activeOpacity={0.7}>
-                        <Text style={{ color: "#dc2626", fontSize: 12, fontWeight: "600", textAlign: "center" }}>
-                          View Details
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-
-            <View style={{ paddingHorizontal: 20, marginBottom: 32 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <Text style={{ color: "#ffffff", fontSize: 24, fontWeight: "bold" }}>
-                  ⭐ Top Rated
-                </Text>
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={{ color: "#dc2626", fontWeight: "600" }}>See All</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 12 }}>
-                {topRatedAnime.map((anime) => (
-                  <TouchableOpacity
-                    key={anime.id}
-                    style={{ width: "48%", backgroundColor: "#1a1a1a", borderRadius: 16, overflow: "hidden" }}
-                    activeOpacity={0.8}
-                  >
-                    <View style={{ height: 120, backgroundColor: "#450a0a", alignItems: "center", justifyContent: "center", padding: 12 }}>
-                      <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "bold", textAlign: "center" }}>
-                        {anime.title}
-                      </Text>
-                    </View>
-                    <View style={{ padding: 12 }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                          <Ionicons name="star" size={14} color="#fbbf24" />
-                          <Text style={{ color: "#ffffff", fontWeight: "bold", marginLeft: 4 }}>{anime.rating}</Text>
-                        </View>
-                        <Text style={{ color: "#9ca3af", fontSize: 10 }}>{anime.reviews} reviews</Text>
-                      </View>
-                      <TouchableOpacity style={{ marginTop: 8 }} activeOpacity={0.7}>
-                        <View style={{ backgroundColor: "rgba(220, 38, 38, 0.2)", paddingVertical: 6, borderRadius: 8 }}>
-                          <Text style={{ color: "#dc2626", fontSize: 12, fontWeight: "600", textAlign: "center" }}>
-                            Rate Now
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            <TopRated
+              data={topRatedAnime}
+              onSeeAll={() => {
+                console.log("Navigate to top rated anime list");
+              }}
+             
+            />
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
