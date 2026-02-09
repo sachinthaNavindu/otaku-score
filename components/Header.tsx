@@ -1,43 +1,80 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Image } from "react-native";
 import { router } from "expo-router";
 
 interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
   onBackPress?: () => void;
+  profileImage?: string;
+  onProfilePress?: () => void;
 }
 
-const Header = ({ 
-  title = "OtakuScore", 
+const Header = ({
+  title = "OtakuScore",
   showBackButton = false,
-  onBackPress 
+  onBackPress,
+  profileImage = "https://i.pravatar.cc/150?img=12", 
+  onProfilePress,
 }: HeaderProps) => {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 40 }}>
-      <View style={{ 
-        width: 48, 
-        height: 48, 
-        backgroundColor: "#dc2626", 
-        borderRadius: 999, 
-        alignItems: "center", 
-        justifyContent: "center", 
-        marginRight: 12 
-      }}>
-        <TouchableOpacity 
-          onPress={onBackPress || (() => router.push("/"))}
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 40,
+      }}
+    >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <TouchableOpacity
+          onPress={onBackPress || (() => router.push("/(dashboard)/profile"))}
+          activeOpacity={0.8}
+          style={{
+            width: 48,
+            height: 48,
+            backgroundColor: "#dc2626",
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 12,
+          }}
         >
-          <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>OS</Text>
+          <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
+            OS
+          </Text>
         </TouchableOpacity>
+
+        <Text style={{ color: "#ffffff", fontSize: 32, fontWeight: "bold" }}>
+          {title.includes("Otaku") ? (
+            <>
+              Otaku
+              <Text style={{ color: "#dc2626" }}>
+                {title.replace("Otaku", "")}
+              </Text>
+            </>
+          ) : (
+            title
+          )}
+        </Text>
       </View>
-      <Text style={{ color: "#ffffff", fontSize: 32, fontWeight: "bold" }}>
-        {title.includes("Otaku") ? (
-          <>
-            Otaku<Text style={{ color: "#dc2626" }}>{title.replace("Otaku", "")}</Text>
-          </>
-        ) : (
-          title
-        )}
-      </Text>
+
+      <TouchableOpacity
+        onPress={onProfilePress || (() => router.push("/(dashboard)/profile"))}
+        activeOpacity={0.8}
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 999,
+          overflow: "hidden",
+          borderWidth: 2,
+          borderColor: "#dc2626",
+        }}
+      >
+        <Image
+          source={{ uri: profileImage }}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </TouchableOpacity>
     </View>
   );
 };

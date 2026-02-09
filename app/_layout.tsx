@@ -1,20 +1,10 @@
-import { Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AuthProvider } from "@/context/AuthContext"; 
+import { Slot } from "expo-router";
+import { AuthProvider } from "@/context/AuthContext";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: "#000000" },
-          }}
-        >
-          {children}
-        </Stack>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <Slot />
+    </AuthProvider>
   );
 }
