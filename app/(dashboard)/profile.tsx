@@ -128,7 +128,6 @@ const Profile = () => {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 40 }}
             >
-              {/* Header */}
               <View style={{ paddingHorizontal: 24, paddingTop: 24, marginBottom: 32 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                   <TouchableOpacity
@@ -153,7 +152,6 @@ const Profile = () => {
                 </View>
               </View>
 
-              {/* Profile Picture Section */}
               <View style={{ alignItems: "center", marginBottom: 40 }}>
                 <TouchableOpacity onPress={pickImage} disabled={isLoading}>
                   <View style={{ position: "relative" }}>
@@ -227,7 +225,6 @@ const Profile = () => {
                 </Text>
               </View>
 
-              {/* Profile Info Card */}
               <View
                 style={{
                   backgroundColor: "rgba(26, 26, 26, 0.8)",
@@ -270,7 +267,6 @@ const Profile = () => {
                   </TouchableOpacity>
                 </View>
 
-                {/* Username Field */}
                 <View style={{ marginBottom: 20 }}>
                   <Text style={{ color: "#9ca3af", fontSize: 14, marginBottom: 6 }}>
                     Username
@@ -300,7 +296,6 @@ const Profile = () => {
                   )}
                 </View>
 
-                {/* Email Field */}
                 <View style={{ marginBottom: 20 }}>
                   <Text style={{ color: "#9ca3af", fontSize: 14, marginBottom: 6 }}>
                     Email
@@ -332,7 +327,6 @@ const Profile = () => {
                   )}
                 </View>
 
-                {/* Member Since */}
                 <View>
                   <Text style={{ color: "#9ca3af", fontSize: 14, marginBottom: 6 }}>
                     Member Since
@@ -342,7 +336,6 @@ const Profile = () => {
                   </Text>
                 </View>
 
-                {/* Cancel Button (only shows in edit mode) */}
                 {isEditing && (
                   <TouchableOpacity
                     onPress={handleCancel}
@@ -362,7 +355,6 @@ const Profile = () => {
                 )}
               </View>
 
-              {/* Stats Card */}
               <View
                 style={{
                   backgroundColor: "rgba(26, 26, 26, 0.8)",
@@ -416,7 +408,6 @@ const Profile = () => {
                 </View>
               </View>
 
-              {/* Logout Button */}
               <TouchableOpacity
                 onPress={handleLogout}
                 style={{

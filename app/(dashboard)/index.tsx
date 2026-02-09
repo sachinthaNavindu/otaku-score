@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Header from "@/components/Header";
+import AnimeCard from "@/components/AnimeCard";
 
 type Anime = {
   id: number;
@@ -81,63 +82,12 @@ const Home = () => {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // Handle search functionality
     }
   };
 
   type AnimeCardProps = {
     anime: Anime;
   };
-
-  const AnimeCard = ({ anime }: AnimeCardProps) => (
-    <TouchableOpacity
-      style={{ width: 150, marginRight: 16 }}
-      activeOpacity={0.7}
-    >
-      <View style={{ borderRadius: 12, overflow: "hidden", marginBottom: 8 }}>
-        <Image
-          source={{ uri: anime.image }}
-          style={{ width: 150, height: 200 }}
-          resizeMode="cover"
-        />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.8)"]}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 80,
-          }}
-        />
-        <View
-          style={{
-            position: "absolute",
-            bottom: 8,
-            left: 8,
-            right: 8,
-          }}
-        >
-          <Text style={{ color: "#ffffff", fontSize: 14, fontWeight: "600" }}>
-            {anime.title.length > 20
-              ? anime.title.substring(0, 20) + "..."
-              : anime.title}
-          </Text>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}
-          >
-            <Ionicons name="star" size={14} color="#dc2626" />
-            <Text style={{ color: "#ffffff", fontSize: 12, marginLeft: 4 }}>
-              {anime.score}
-            </Text>
-            <Text style={{ color: "#9ca3af", fontSize: 12, marginLeft: 8 }}>
-              {anime.episodes} eps
-            </Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaProvider>
@@ -161,7 +111,6 @@ const Home = () => {
               <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
                 <Header />
 
-                {/* Search Bar */}
                 <View
                   style={{
                     backgroundColor: "#1a1a1a",
@@ -203,7 +152,6 @@ const Home = () => {
                   Try "One Piece", "Naruto", or "Attack on Titan"
                 </Text>
 
-                {/* Add Review Button */}
                 <View style={{ alignItems: "center", marginBottom: 24 }}>
                   <TouchableOpacity
                     style={{
@@ -227,7 +175,7 @@ const Home = () => {
                       borderColor: "rgba(220, 38, 38, 0.3)",
                     }}
                     activeOpacity={0.7}
-                    onPress={()=>router.replace("/(dashboard)/reviews")}
+                    onPress={() => router.replace("/(dashboard)/reviews")}
                   >
                     <Ionicons
                       name="add-circle-outline"
@@ -257,7 +205,6 @@ const Home = () => {
                   </Text>
                 </View>
 
-                {/* Top Rated Section */}
                 <View
                   style={{
                     flexDirection: "row",
@@ -296,12 +243,17 @@ const Home = () => {
                 >
                   <View style={{ flexDirection: "row", paddingRight: 24 }}>
                     {topRatedAnime.map((anime) => (
-                      <AnimeCard key={anime.id} anime={anime} />
+                      <AnimeCard
+                        key={anime.id}
+                        anime={anime}
+                        onPress={() => {
+                          router.push("/(dashboard)/reviewDetails");
+                        }}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
-                {/* Quick Stats */}
                 <View
                   style={{
                     backgroundColor: "rgba(26, 26, 26, 0.8)",
