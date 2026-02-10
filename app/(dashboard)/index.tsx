@@ -17,58 +17,6 @@ import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import { getTopRatedAnimeFromReviews } from "@/services/reviewService";
 
-type Anime = {
-  id: number;
-  title: string;
-  score: number;
-  episodes: number;
-  image: string;
-};
-
-const topRatedAnime: Anime[] = [
-  {
-    id: 5,
-    title: "Fullmetal Alchemist: Brotherhood",
-    score: 9.5,
-    episodes: 64,
-    image: "https://picsum.photos/seed/fma1/200/300",
-  },
-  {
-    id: 6,
-    title: "Steins;Gate",
-    score: 9.2,
-    episodes: 24,
-    image: "https://picsum.photos/seed/sg1/200/300",
-  },
-  {
-    id: 7,
-    title: "Hunter x Hunter",
-    score: 9.4,
-    episodes: 148,
-    image: "https://picsum.photos/seed/hxh1/200/300",
-  },
-  {
-    id: 8,
-    title: "Demon Slayer: Kimetsu no Yaiba",
-    score: 8.8,
-    episodes: 55,
-    image: "https://picsum.photos/seed/ds1/200/300",
-  },
-  {
-    id: 9,
-    title: "Attack on Titan",
-    score: 9.3,
-    episodes: 75,
-    image: "https://picsum.photos/seed/aot1/200/300",
-  },
-  {
-    id: 10,
-    title: "Jujutsu Kaisen",
-    score: 9.1,
-    episodes: 24,
-    image: "https://picsum.photos/seed/jjk1/200/300",
-  },
-];
 
 const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -261,9 +209,7 @@ const Home = () => {
                           score: anime.averageRating,
                           reviews: anime.reviewCount, 
                           image:
-                            "https://picsum.photos/seed/" +
-                            anime.animeId +
-                            "/200/300",
+                            anime.imageUrl,
                         }}
                         onPress={() => {
                           router.push("/(dashboard)/reviewDetails");

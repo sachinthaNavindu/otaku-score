@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -19,25 +19,14 @@ import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
 import { useUser } from "@/context/UserContext";
 import { publishReview } from "@/services/reviewService";
-
-const animeList = [
-  { id: 1, title: "Attack on Titan" },
-  { id: 2, title: "Demon Slayer: Kimetsu no Yaiba" },
-  { id: 3, title: "Jujutsu Kaisen" },
-  { id: 4, title: "One Piece" },
-  { id: 5, title: "Naruto: Shippuden" },
-  { id: 6, title: "Fullmetal Alchemist: Brotherhood" },
-  { id: 7, title: "Hunter x Hunter" },
-  { id: 8, title: "Steins;Gate" },
-  { id: 9, title: "Death Note" },
-  { id: 10, title: "My Hero Academia" },
-];
+import { FirestoreAnime, getAnimeFromFirestore } from "@/services/animeService";
 
 const Reviews = () => {
   const [selectedAnime, setSelectedAnime] = useState<{
     id: number;
     title: string;
   } | null>(null);
+
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -45,10 +34,28 @@ const Reviews = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const auth = getAuth();
   const { username } = useUser();
+  const [animeList, setAnimeList] = useState<FirestoreAnime[]>([]);
+  const [loadingAnime, setLoadingAnime] = useState(true);
 
   const filteredAnime = animeList.filter((anime) =>
-    anime.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    anime.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+  
+  useEffect(() => {
+  const loadAnime = async () => {
+    try {
+      setLoadingAnime(true);
+      const firestoreAnime = await getAnimeFromFirestore();
+      setAnimeList(firestoreAnime);
+    } catch (error) {
+      console.error("Failed to load anime:", error);
+    } finally {
+      setLoadingAnime(false);
+    }
+  };
+
+  loadAnime();
+}, []);
 
 const handlePublish = async () => {
   if (!selectedAnime) {
@@ -121,7 +128,7 @@ const handlePublish = async () => {
   const renderAnimeItem = ({
     item,
   }: {
-    item: { id: number; title: string };
+    item:FirestoreAnime
   }) => (
     <TouchableOpacity
       style={{
@@ -131,12 +138,12 @@ const handlePublish = async () => {
         borderBottomColor: "#374151",
       }}
       onPress={() => {
-        setSelectedAnime(item);
+        setSelectedAnime({ id: item.mal_id, title: item.name });
         setShowDropdown(false);
         setSearchQuery("");
       }}
     >
-      <Text style={{ color: "#ffffff", fontSize: 16 }}>{item.title}</Text>
+      <Text style={{ color: "#ffffff", fontSize: 16 }}>{item.name}</Text>
     </TouchableOpacity>
   );
 

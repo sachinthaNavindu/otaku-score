@@ -1,7 +1,13 @@
 import { db } from "@/services/firebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where,orderBy } from "firebase/firestore";
 import { Anime } from "./animeApiService"; 
 
+export interface FirestoreAnime {
+  id: string;
+  mal_id: number;
+  name: string;
+  imageUrl?: string;
+}
 
 
 const uploadAnimeImage = async (uri: string) => {
@@ -60,5 +66,23 @@ export const saveAnimeNamesToFirestore = async (animeList: Anime[]) => {
     console.log("Anime names saved successfully!");
   } catch (error) {
     console.error("Error saving anime names:", error);
+  }
+};
+
+export const getAnimeFromFirestore = async (): Promise<FirestoreAnime[]> => {
+  try {
+    const animeCollection = collection(db, "animeNames");
+    const q = query(animeCollection, orderBy("createdAt", "desc")); 
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      mal_id: doc.data().mal_id,
+      name: doc.data().name,
+      imageUrl: doc.data().imageUrl,
+    }));
+  } catch (error) {
+    console.error("Error fetching anime from Firestore:", error);
+    return [];
   }
 };

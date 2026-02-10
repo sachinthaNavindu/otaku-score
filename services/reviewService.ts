@@ -26,6 +26,7 @@ export interface TopRatedAnime {
   animeTitle: string;
   averageRating: number;
   reviewCount: number;
+  imageUrl?: string;
 }
 
 
@@ -83,20 +84,19 @@ export const deleteReviewById = async (reviewId: string) => {
   await deleteDoc(doc(db, "reviews", reviewId));
 };  
 
+
 export const getTopRatedAnimeFromReviews = async (
   limitCount = 10
 ): Promise<TopRatedAnime[]> => {
-  const q = query(collection(db, "reviews"));
-  const snapshot = await getDocs(q);
+  const reviewSnap = await getDocs(collection(db, "reviews"));
 
   const animeMap: Record<
     number,
     { title: string; total: number; count: number }
   > = {};
 
-  snapshot.docs.forEach((docSnap) => {
-    const data = docSnap.data();
-
+  reviewSnap.docs.forEach((doc) => {
+    const data = doc.data();
     if (!data.animeId || !data.rating) return;
 
     if (!animeMap[data.animeId]) {
@@ -111,13 +111,11 @@ export const getTopRatedAnimeFromReviews = async (
     }
   });
 
-  return Object.entries(animeMap)
+  const topAnime = Object.entries(animeMap)
     .map(([animeId, value]) => ({
       animeId: Number(animeId),
       animeTitle: value.title,
-      averageRating: Number(
-        (value.total / value.count).toFixed(1)
-      ),
+      averageRating: Number((value.total / value.count).toFixed(1)),
       reviewCount: value.count,
     }))
     .sort((a, b) => {
@@ -127,4 +125,26 @@ export const getTopRatedAnimeFromReviews = async (
       return b.averageRating - a.averageRating;
     })
     .slice(0, limitCount);
+
+  const animeIds = topAnime.map((a) => a.animeId);
+
+  if (animeIds.length === 0) return [];
+
+  const animeQuery = query(
+    collection(db, "animeNames"),
+    where("mal_id", "in", animeIds)
+  );
+
+  const animeSnap = await getDocs(animeQuery);
+
+  const imageMap: Record<number, string> = {};
+  animeSnap.docs.forEach((doc) => {
+    const data = doc.data();
+    imageMap[data.mal_id] = data.imageUrl;
+  });
+
+  return topAnime.map((anime) => ({
+    ...anime,
+    imageUrl: imageMap[anime.animeId],
+  }));
 };
