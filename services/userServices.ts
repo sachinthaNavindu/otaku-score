@@ -9,8 +9,13 @@ export const getUserData = async (uid: string) => {
   if (!userSnap.exists()) {
     throw new Error("User not found");
   }
+  const data = userSnap.data() ?? {}
 
-  return userSnap.data();
+  return data as{
+    username?: string
+    email?: string
+    profileImage?: string
+  };
 };
 
 export const updateUserData = async (

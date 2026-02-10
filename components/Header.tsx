@@ -1,5 +1,10 @@
 import { Text, TouchableOpacity, View, Image } from "react-native";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getUserData } from "@/services/userServices";
+import { useUser } from "@/context/UserContext";
+
 
 interface HeaderProps {
   title?: string;
@@ -13,9 +18,9 @@ const Header = ({
   title = "OtakuScore",
   showBackButton = false,
   onBackPress,
-  profileImage = "", 
   onProfilePress,
 }: HeaderProps) => {
+  const {profileImage} = useUser()
   return (
     <View
       style={{
@@ -60,20 +65,13 @@ const Header = ({
 
       <TouchableOpacity
         onPress={onProfilePress || (() => router.push("/(dashboard)/profile"))}
-        activeOpacity={0.8}
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 999,
-          overflow: "hidden",
-          borderWidth: 2,
-          borderColor: "#dc2626",
-        }}
+        style={{ width: 44, height: 44, borderRadius: 999, overflow: "hidden", borderWidth: 2, borderColor: "#dc2626" }}
       >
-        <Image
-          source={{ uri: profileImage }}
-          style={{ width: "100%", height: "100%" }}
-        />
+        {profileImage ? (
+          <Image source={{ uri: profileImage }} style={{ width: "100%", height: "100%" }} />
+        ) : (
+          <Text style={{ color: "#dc2626", textAlign: "center" }}>OS</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
