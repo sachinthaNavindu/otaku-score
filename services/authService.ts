@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile,sendEmailVerification } from "firebase/auth";
-import { collection, doc, getDocs, query, updateDoc,setDoc, where } from "firebase/firestore";
+import {  doc,setDoc} from "firebase/firestore";
 import { auth, db } from "./firebase";
 
 

@@ -16,6 +16,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { getAuth } from "firebase/auth";
+import { useUser } from "@/context/UserContext";
+import { publishReview } from "@/services/reviewService";
 
 const animeList = [
   { id: 1, title: "Attack on Titan" },
@@ -40,44 +43,61 @@ const Reviews = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const auth = getAuth();
+  const { username } = useUser();
 
   const filteredAnime = animeList.filter((anime) =>
     anime.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handlePublish = () => {
-    if (!selectedAnime) {
-      Alert.alert("Error", "Please select an anime");
-      return;
-    }
+const handlePublish = async () => {
+  if (!selectedAnime) {
+    Alert.alert("Error", "Please select an anime");
+    return;
+  }
 
-    if (rating === 0) {
-      Alert.alert("Error", "Please rate the anime");
-      return;
-    }
+  if (rating === 0) {
+    Alert.alert("Error", "Please rate the anime");
+    return;
+  }
 
-    if (reviewText.trim().length < 10) {
-      Alert.alert("Error", "Review must be at least 10 characters long");
-      return;
-    }
+  if (reviewText.trim().length < 10) {
+    Alert.alert("Error", "Review must be at least 10 characters long");
+    return;
+  }
 
+  try {
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      Alert.alert("Success", `Review published for "${selectedAnime.title}"!`, [
-        {
-          text: "OK",
-          onPress: () => {
-            setSelectedAnime(null);
-            setRating(0);
-            setReviewText("");
-            setSearchQuery("");
-          },
-        },
-      ]);
-    }, 1500);
-  };
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert("Error", "You must be logged in");
+      return;
+    }
+
+    await publishReview({
+      animeId: selectedAnime.id,
+      animeTitle: selectedAnime.title,
+      userId: user.uid,
+      username: username || "Anonymous",
+      rating,
+      reviewText: reviewText.trim(),
+    });
+
+    Alert.alert("Success", "Review published 🎉");
+
+    setSelectedAnime(null);
+    setRating(0);
+    setReviewText("");
+    setSearchQuery("");
+  } catch (error) {
+    console.error(error);
+    Alert.alert("Error", "Failed to publish review");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const StarRating = () => (
     <View style={{ flexDirection: "row", marginVertical: 16 }}>
