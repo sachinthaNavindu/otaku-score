@@ -16,11 +16,15 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { uploadProfileImage, updateUserData } from "@/services/userServices";
-
+import {
+  getUserReviews,
+  deleteReviewById,
+  Review,
+} from "@/services/reviewService";
+import { doc, getDoc } from "firebase/firestore";
 
 const Profile = () => {
   const [userData, setUserData] = useState({
@@ -34,6 +38,8 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [userReviews, setUserReviews] = useState<Review[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
   const auth = getAuth();
 
@@ -41,6 +47,7 @@ const Profile = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         loadUserData(user.uid);
+        loadUserReviews(user.uid);
       } else {
         router.replace("/(auth)/login");
       }
@@ -94,6 +101,19 @@ const Profile = () => {
     }
   };
 
+  const loadUserReviews = async (userId: string) => {
+    setIsLoadingReviews(true);
+    try {
+      const reviews = await getUserReviews(userId);
+      setUserReviews(reviews);
+    } catch (error) {
+      console.error("Error loading reviews:", error);
+      Alert.alert("Error", "Failed to load your reviews");
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
+
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -117,42 +137,44 @@ const Profile = () => {
     }
   };
 
- const handleSave = async () => {
-  if (!tempUsername.trim()) {
-    Alert.alert("Error", "Username cannot be empty");
-    return;
-  }
-
-  if (!tempEmail.trim() || !tempEmail.includes("@")) {
-    Alert.alert("Error", "Please enter a valid email address");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    let updatedData: any = {
-      username: tempUsername.trim(),
-      email: tempEmail.trim(),
-    };
-
-    if (profileImage && !profileImage.startsWith("https://")) {
-      const url = await uploadProfileImage(profileImage, auth.currentUser!.uid);
-      updatedData.profileImage = url;
+  const handleSave = async () => {
+    if (!tempUsername.trim()) {
+      Alert.alert("Error", "Username cannot be empty");
+      return;
     }
 
-    await updateUserData(auth.currentUser!.uid, updatedData);
-    setUserData(updatedData);
+    if (!tempEmail.trim() || !tempEmail.includes("@")) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
 
-    Alert.alert("Success", "Profile updated successfully!");
-    setIsEditing(false);
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Error", "Failed to update profile");
-  } finally {
-    setIsLoading(false);
-  }
-};
+    setIsLoading(true);
+
+    try {
+      let updatedData: any = {
+        username: tempUsername.trim(),
+        email: tempEmail.trim(),
+      };
+
+      if (profileImage && !profileImage.startsWith("https://")) {
+        const url = await uploadProfileImage(
+          profileImage,
+          auth.currentUser!.uid,
+        );
+        updatedData.profileImage = url;
+      }
+
+      await updateUserData(auth.currentUser!.uid, updatedData);
+      setUserData(updatedData);
+
+      Alert.alert("Success", "Profile updated successfully!");
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCancel = () => {
     setTempUsername(userData.username);
@@ -169,6 +191,64 @@ const Profile = () => {
         onPress: () => router.replace("/(auth)/login"),
       },
     ]);
+  };
+
+  const handleEditReview = (review: Review) => {
+    // Navigate to edit review screen or show edit modal
+    Alert.alert("Edit Review", "This would open the edit review screen.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "OK",
+        onPress: () => {
+          // Navigate to edit screen with review data
+          // router.push(`/edit-review/${review.id}`);
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteReview = (reviewId: string, animeTitle: string) => {
+    Alert.alert(
+      "Delete Review",
+      `Are you sure you want to delete your review for "${animeTitle}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteReviewById(reviewId);
+              setUserReviews((prev) =>
+                prev.filter((review) => review.id !== reviewId),
+              );
+              Alert.alert("Success", "Review deleted successfully!");
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete review");
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const renderStars = (rating: number) => {
+    return (
+      <View style={{ flexDirection: "row", marginVertical: 4 }}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Ionicons
+            key={star}
+            name={star <= rating ? "star" : "star-outline"}
+            size={16}
+            color="#dc2626"
+            style={{ marginRight: 2 }}
+          />
+        ))}
+        <Text style={{ color: "#dc2626", marginLeft: 8, fontSize: 14 }}>
+          {rating.toFixed(1)}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -437,6 +517,176 @@ const Profile = () => {
                       Cancel
                     </Text>
                   </TouchableOpacity>
+                )}
+              </View>
+
+              {/* My Reviews Section */}
+              <View
+                style={{
+                  backgroundColor: "rgba(26, 26, 26, 0.8)",
+                  marginHorizontal: 24,
+                  borderRadius: 16,
+                  padding: 24,
+                  marginBottom: 32,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 24,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#ffffff",
+                      fontSize: 20,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    My Reviews
+                  </Text>
+                  <Text
+                    style={{
+                      color: "#dc2626",
+                      fontSize: 14,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {userReviews.length} reviews
+                  </Text>
+                </View>
+
+                {isLoadingReviews ? (
+                  <View style={{ alignItems: "center", paddingVertical: 40 }}>
+                    <ActivityIndicator color="#dc2626" size="large" />
+                    <Text style={{ color: "#9ca3af", marginTop: 12 }}>
+                      Loading reviews...
+                    </Text>
+                  </View>
+                ) : userReviews.length > 0 ? (
+                  userReviews.map((review) => (
+                    <View
+                      key={review.id}
+                      style={{
+                        backgroundColor: "#1a1a1a",
+                        borderRadius: 12,
+                        padding: 16,
+                        marginBottom: 16,
+                        borderLeftWidth: 4,
+                        borderLeftColor: "#dc2626",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          marginBottom: 8,
+                        }}
+                      >
+                        <View style={{ flex: 1 }}>
+                          <Text
+                            style={{
+                              color: "#ffffff",
+                              fontSize: 16,
+                              fontWeight: "bold",
+                              marginBottom: 4,
+                            }}
+                            numberOfLines={2}
+                          >
+                            {review.animeTitle}
+                          </Text>
+                          {renderStars(review.rating)}
+                        </View>
+                        <View style={{ flexDirection: "row" }}>
+                          <TouchableOpacity
+                            onPress={() => handleEditReview(review)}
+                            style={{
+                              backgroundColor: "#3b82f6",
+                              paddingHorizontal: 12,
+                              paddingVertical: 6,
+                              borderRadius: 6,
+                              marginRight: 8,
+                            }}
+                          >
+                            <Ionicons name="pencil" size={16} color="#ffffff" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() =>
+                              handleDeleteReview(review.id, review.animeTitle)
+                            }
+                            style={{
+                              backgroundColor: "#dc2626",
+                              paddingHorizontal: 12,
+                              paddingVertical: 6,
+                              borderRadius: 6,
+                            }}
+                          >
+                            <Ionicons name="trash" size={16} color="#ffffff" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+
+                      <Text
+                        style={{
+                          color: "#d1d5db",
+                          fontSize: 14,
+                          lineHeight: 20,
+                        }}
+                        numberOfLines={3}
+                      >
+                        {review.content}
+                      </Text>
+
+                      {review.createdAt && (
+                        <Text
+                          style={{
+                            color: "#6b7280",
+                            fontSize: 12,
+                            marginTop: 8,
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {review.createdAt.toDate?.().toLocaleDateString() ||
+                            "Recently"}
+                        </Text>
+                      )}
+                    </View>
+                  ))
+                ) : (
+                  <View style={{ alignItems: "center", paddingVertical: 40 }}>
+                    <Ionicons
+                      name="document-text-outline"
+                      size={48}
+                      color="#4b5563"
+                    />
+                    <Text
+                      style={{
+                        color: "#9ca3af",
+                        fontSize: 16,
+                        marginTop: 16,
+                        textAlign: "center",
+                      }}
+                    >
+                      You haven't written any reviews yet.
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => router.push("/(dashboard)")}
+                      style={{
+                        marginTop: 16,
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
+                        backgroundColor: "#dc2626",
+                        borderRadius: 8,
+                      }}
+                    >
+                      <Text style={{ color: "#ffffff", fontWeight: "600" }}>
+                        Browse Anime
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </View>
 
