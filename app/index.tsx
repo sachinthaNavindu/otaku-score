@@ -1,9 +1,26 @@
 import { View, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { fetchCurrentSeasonAnime } from "@/services/animeApiService";
+import { saveAnimeNamesToFirestore } from "@/services/animeService";
 
 export default function Index() {
   const { user, loading } = useAuth();
+ useEffect(() => {
+  const fetchAndSaveAnime = async () => {
+    try {
+      const animeList = await fetchCurrentSeasonAnime(); 
+      if (animeList.length > 0) {
+        await saveAnimeNamesToFirestore(animeList);
+      }
+    } catch (error) {
+      console.error("Failed to fetch anime names", error);
+    }
+  };
+
+  fetchAndSaveAnime();
+}, []);
 
   if (loading) {
     return (
