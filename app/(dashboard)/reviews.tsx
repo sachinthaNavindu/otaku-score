@@ -17,7 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
-// Sample anime data
 const animeList = [
   { id: 1, title: "Attack on Titan" },
   { id: 2, title: "Demon Slayer: Kimetsu no Yaiba" },
@@ -64,14 +63,12 @@ const Reviews = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       Alert.alert("Success", `Review published for "${selectedAnime.title}"!`, [
         {
           text: "OK",
           onPress: () => {
-            // Reset form
             setSelectedAnime(null);
             setRating(0);
             setReviewText("");
@@ -141,7 +138,6 @@ const Reviews = () => {
                 contentContainerStyle={{ paddingBottom: 40 }}
                 keyboardShouldPersistTaps="handled"
               >
-                {/* Header */}
                 <View
                   style={{
                     paddingHorizontal: 24,
@@ -190,7 +186,6 @@ const Reviews = () => {
                   </View>
                 </View>
 
-                {/* Review Form Card */}
                 <View
                   style={{
                     backgroundColor: "rgba(26, 26, 26, 0.8)",
@@ -211,7 +206,6 @@ const Reviews = () => {
                     ✍️ Share Your Thoughts
                   </Text>
 
-                  {/* Anime Selection Dropdown */}
                   <View style={{ marginBottom: 24 }}>
                     <Text
                       style={{
@@ -255,7 +249,6 @@ const Reviews = () => {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Rating Section */}
                   <View style={{ marginBottom: 24 }}>
                     <Text
                       style={{
@@ -274,7 +267,6 @@ const Reviews = () => {
                     </Text>
                   </View>
 
-                  {/* Review Input */}
                   <View style={{ marginBottom: 32 }}>
                     <Text
                       style={{
@@ -317,7 +309,6 @@ const Reviews = () => {
                     </Text>
                   </View>
 
-                  {/* Publish Button */}
                   <TouchableOpacity
                     onPress={handlePublish}
                     disabled={
@@ -369,7 +360,6 @@ const Reviews = () => {
                   </TouchableOpacity>
                 </View>
 
-                {/* Tips Section */}
                 <View
                   style={{
                     backgroundColor: "rgba(26, 26, 26, 0.8)",
@@ -407,7 +397,6 @@ const Reviews = () => {
             </SafeAreaView>
           </LinearGradient>
 
-          {/* Anime Dropdown Modal */}
           <Modal
             visible={showDropdown}
             animationType="slide"
@@ -425,7 +414,6 @@ const Reviews = () => {
                   overflow: "hidden",
                 }}
               >
-                {/* Dropdown Header */}
                 <View
                   style={{
                     padding: 20,
@@ -454,7 +442,6 @@ const Reviews = () => {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Search Bar in Dropdown */}
                   <View
                     style={{
                       backgroundColor: "#000000",
@@ -484,7 +471,6 @@ const Reviews = () => {
                   </View>
                 </View>
 
-                {/* Anime List */}
                 <FlatList
                   data={filteredAnime}
                   renderItem={renderAnimeItem}

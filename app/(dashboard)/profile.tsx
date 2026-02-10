@@ -17,7 +17,6 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 
 const Profile = () => {
-  // User data state
   const [userData, setUserData] = useState({
     username: "AnimeFan123",
     email: "otakufan@example.com",
@@ -26,16 +25,13 @@ const Profile = () => {
     totalRatings: 342,
   });
 
-  // Edit mode state
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState(userData.username);
   const [tempEmail, setTempEmail] = useState(userData.email);
   
-  // Profile image state
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Request permissions on mount
   useEffect(() => {
     (async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -59,7 +55,6 @@ const Profile = () => {
 
       if (!result.canceled && result.assets[0].uri) {
         setIsLoading(true);
-        // Simulate upload process
         setTimeout(() => {
           setProfileImage(result.assets[0].uri);
           setIsLoading(false);
@@ -73,7 +68,6 @@ const Profile = () => {
   };
 
   const handleSave = () => {
-    // Validate inputs
     if (!tempUsername.trim()) {
       Alert.alert("Error", "Username cannot be empty");
       return;
@@ -84,7 +78,6 @@ const Profile = () => {
       return;
     }
 
-    // Update user data
     setUserData({
       ...userData,
       username: tempUsername.trim(),
