@@ -20,9 +20,9 @@ export default function Index() {
     );
   }
 
-  // if (!user) {
-  //   return <Redirect href="/(auth)/login" />;
-  // }
+  if (!user) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
-  return <Redirect href="/(auth)/login" />;
+  return <Redirect href="/(dashboard)" />;
 }

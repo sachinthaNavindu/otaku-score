@@ -26,9 +26,19 @@ const Login = () => {
   const {showLoader,hideLoader,isLoading} = useLoader()
 
   const handleLogin = async() =>{
-
-    router.replace("/(dashboard)")
- 
+    if(!email || !password || isLoading){
+      Alert.alert("Please Enter Email & Password")
+      return
+    } 
+    try{
+      showLoader()
+      await login(email,password)
+      router.replace("/(dashboard)")
+    }catch(e){
+      Alert.alert("Login Fail..!")
+    }finally{
+      hideLoader()
+    }
   } 
 
    return (
