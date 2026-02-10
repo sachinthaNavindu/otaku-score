@@ -13,7 +13,7 @@ const Header = ({
   title = "OtakuScore",
   showBackButton = false,
   onBackPress,
-  profileImage = "https://i.pravatar.cc/150?img=12", 
+  profileImage = "", 
   onProfilePress,
 }: HeaderProps) => {
   return (
