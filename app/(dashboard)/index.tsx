@@ -8,13 +8,14 @@ import {
   RefreshControl,
   TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
+import { getTopRatedAnimeFromReviews } from "@/services/reviewService";
 
 type Anime = {
   id: number;
@@ -72,6 +73,19 @@ const topRatedAnime: Anime[] = [
 const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [topRatedFromReviews, setTopRatedFromReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadTopRated = async () => {
+      try {
+        const data = await getTopRatedAnimeFromReviews(6);
+        setTopRatedFromReviews(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadTopRated();
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -83,10 +97,6 @@ const Home = () => {
   const handleSearch = () => {
     if (searchQuery.trim()) {
     }
-  };
-
-  type AnimeCardProps = {
-    anime: Anime;
   };
 
   return (
@@ -242,10 +252,19 @@ const Home = () => {
                   style={{ marginHorizontal: -24, paddingHorizontal: 24 }}
                 >
                   <View style={{ flexDirection: "row", paddingRight: 24 }}>
-                    {topRatedAnime.map((anime) => (
+                    {topRatedFromReviews.map((anime) => (
                       <AnimeCard
-                        key={anime.id}
-                        anime={anime}
+                        key={anime.animeId}
+                        anime={{
+                          id: anime.animeId,
+                          title: anime.animeTitle,
+                          score: anime.averageRating,
+                          reviews: anime.reviewCount, 
+                          image:
+                            "https://picsum.photos/seed/" +
+                            anime.animeId +
+                            "/200/300",
+                        }}
                         onPress={() => {
                           router.push("/(dashboard)/reviewDetails");
                         }}

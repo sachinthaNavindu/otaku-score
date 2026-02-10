@@ -6,7 +6,7 @@ export type Anime = {
   id: number;
   title: string;
   score: number;
-  episodes: number;
+  reviews: number;
   image: string;
 };
 
@@ -57,7 +57,7 @@ const AnimeCard = ({ anime, onPress }: AnimeCardProps) => {
               {anime.score}
             </Text>
             <Text style={{ color: "#9ca3af", fontSize: 12, marginLeft: 8 }}>
-              {anime.episodes} eps
+              {anime.reviews} revs
             </Text>
           </View>
         </View>
