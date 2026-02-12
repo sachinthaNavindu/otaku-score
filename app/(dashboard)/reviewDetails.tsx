@@ -7,41 +7,63 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { TextInput } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { getReviewsByAnimeId, Review,getUserReviewByAnimeId, deleteReviewById,updateReviewById} from "@/services/reviewService";
+import { getAuth } from "firebase/auth";
 
-const sampleAnime = {
-  id: 1,
-  title: "Attack on Titan",
-  image: "https://picsum.photos/seed/aot/200/300",
-  rating: 9.3,
-};
-
-const topReviews = [
-  { id: 1, user: "Alice", rating: 5, text: "Amazing animation and story!" },
-  { id: 2, user: "Bob", rating: 4, text: "Great characters but slow start." },
-  { id: 3, user: "Charlie", rating: 5, text: "Epic ending!" },
-  { id: 4, user: "Dave", rating: 4, text: "Loved the soundtrack." },
-  { id: 5, user: "Eve", rating: 3, text: "Good but predictable plot." },
-  { id: 6, user: "Frank", rating: 5, text: "Masterpiece." },
-  { id: 7, user: "Grace", rating: 4, text: "Really enjoyed it." },
-];
-
-const userReview = { rating: 5, text: "My favorite anime ever!" };
 
 const ReviewDetails = () => {
   const [showFullText, setShowFullText] = useState(false);
-  const [userReview, setUserReview] = useState({
+  const [userReview, setUserReview] = useState<{rating:number; text:string} | null>({
     rating: 5,
     text: "My favorite anime ever!",
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(userReview.text);
+  const [editedText, setEditedText] = useState(userReview?.text || "");
+  const { animeId, title, image, rating } = useLocalSearchParams();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [userReviewId, setUserReviewId] = useState<string | null>(null)
 
-  const renderReviewItem = ({ item }: any) => (
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!animeId) return;
+
+      const result = await getReviewsByAnimeId(Number(animeId));
+
+      setReviews(result.reviews);
+      setAverageRating(result.averageRating);
+    };
+
+    fetchReviews();
+  }, [animeId]);
+
+  useEffect(() => {
+  const fetchUserReview = async () => {
+    if (!animeId) return;
+
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    const review = await getUserReviewByAnimeId(Number(animeId), userId);
+    if (review) {
+      setUserReview({ rating: review.rating, text: review.content });
+      setEditedText(review.content);
+      setUserReviewId(review.id)
+    }
+  };
+
+  fetchUserReview();
+}, [animeId]);
+
+  const renderReviewItem = ({ item }: { item: Review }) => (
     <View
       style={{
         backgroundColor: "#1a1a1a",
@@ -54,8 +76,9 @@ const ReviewDetails = () => {
         style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}
       >
         <Text style={{ color: "#ffffff", fontWeight: "bold", marginRight: 8 }}>
-          {item.user}
+          {item.username || "Anonymous"}
         </Text>
+
         <View style={{ flexDirection: "row" }}>
           {[1, 2, 3, 4, 5].map((star) => (
             <Ionicons
@@ -67,7 +90,8 @@ const ReviewDetails = () => {
           ))}
         </View>
       </View>
-      <Text style={{ color: "#9ca3af" }}>{item.text}</Text>
+
+      <Text style={{ color: "#9ca3af" }}>{item.content}</Text>
     </View>
   );
 
@@ -101,7 +125,7 @@ const ReviewDetails = () => {
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View style={{ flexDirection: "row", marginBottom: 16 }}>
           <Image
-            source={{ uri: sampleAnime.image }}
+            source={{ uri: image as string }}
             style={{
               width: 100,
               height: 150,
@@ -113,7 +137,7 @@ const ReviewDetails = () => {
             <Text
               style={{ color: "#ffffff", fontSize: 20, fontWeight: "bold" }}
             >
-              {sampleAnime.title}
+              {title}
             </Text>
             <View
               style={{
@@ -124,7 +148,7 @@ const ReviewDetails = () => {
             >
               <Ionicons name="star" size={20} color="#dc2626" />
               <Text style={{ color: "#ffffff", marginLeft: 6, fontSize: 16 }}>
-                {sampleAnime.rating}
+                {rating}
               </Text>
             </View>
             <Text style={{ color: "#9ca3af", marginTop: 12 }}>
@@ -172,7 +196,16 @@ const ReviewDetails = () => {
                   <Ionicons name="create-outline" size={20} color="#22c55e" />
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={async ()=>{
+                    if(!userReviewId)return
+
+                    await deleteReviewById(userReviewId)
+                    setUserReview(null)
+                    setEditedText("")
+                    setReviews(reviews.filter(r => r.id !== userReviewId))
+                  }}
+                >
                   <Ionicons name="trash-outline" size={20} color="#ef4444" />
                 </TouchableOpacity>
               </View>
@@ -226,7 +259,10 @@ const ReviewDetails = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => {
+                  onPress={async() => {
+                    if (!userReviewId || !userReview) return;
+
+                    await updateReviewById(userReviewId, editedText, userReview.rating);
                     setUserReview({ ...userReview, text: editedText });
                     setIsEditing(false);
                   }}
@@ -251,7 +287,7 @@ const ReviewDetails = () => {
           Top Reviews
         </Text>
         <FlatList
-          data={topReviews}
+          data={reviews}
           renderItem={renderReviewItem}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={false}

@@ -8,11 +8,13 @@ import {
   deleteDoc,
   doc,
   orderBy,
-} from "firebase/firestore";import { db } from "@/services/firebase";
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "@/services/firebase";
 
 export interface Review {
   id: string;
-  animeId: string;
+  animeId: number;
   animeTitle: string;
   userId: string;
   username?: string;
@@ -28,7 +30,6 @@ export interface TopRatedAnime {
   reviewCount: number;
   imageUrl?: string;
 }
-
 
 export const publishReview = async ({
   animeId,
@@ -51,7 +52,7 @@ export const publishReview = async ({
     userId,
     username,
     rating,
-    content:reviewText,
+    content: reviewText,
     createdAt: serverTimestamp(),
   });
 };
@@ -60,7 +61,7 @@ export const getUserReviews = async (userId: string): Promise<Review[]> => {
   const q = query(
     collection(db, "reviews"),
     where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
 
   const snapshot = await getDocs(q);
@@ -82,11 +83,10 @@ export const getUserReviews = async (userId: string): Promise<Review[]> => {
 
 export const deleteReviewById = async (reviewId: string) => {
   await deleteDoc(doc(db, "reviews", reviewId));
-};  
-
+};
 
 export const getTopRatedAnimeFromReviews = async (
-  limitCount = 10
+  limitCount = 10,
 ): Promise<TopRatedAnime[]> => {
   const reviewSnap = await getDocs(collection(db, "reviews"));
 
@@ -132,7 +132,7 @@ export const getTopRatedAnimeFromReviews = async (
 
   const animeQuery = query(
     collection(db, "animeNames"),
-    where("mal_id", "in", animeIds)
+    where("mal_id", "in", animeIds),
   );
 
   const animeSnap = await getDocs(animeQuery);
@@ -147,4 +147,69 @@ export const getTopRatedAnimeFromReviews = async (
     ...anime,
     imageUrl: imageMap[anime.animeId],
   }));
+};
+
+export const getReviewsByAnimeId = async (animeId: number) => {
+  const q = query(
+    collection(db, "reviews"),
+    where("animeId", "==", animeId),
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  const reviews: Review[] = [];
+  let total = 0;
+
+  snapshot.forEach((docSnap) => {
+    const raw = docSnap.data() as Omit<Review, "id">;
+
+    const review: Review = {
+      id: docSnap.id,
+      ...raw,
+    };
+
+    reviews.push(review);
+    total += review.rating;
+  });
+
+  const averageRating =
+    reviews.length > 0 ? Number((total / reviews.length).toFixed(1)) : 0;
+
+  return {
+    reviews,
+    averageRating,
+    reviewCount: reviews.length,
+  };
+};
+
+export const getUserReviewByAnimeId = async (
+  animeId: number,
+  userId: string
+): Promise<Review | null> => {
+  const q = query(
+    collection(db, "reviews"),
+    where("animeId", "==", animeId),
+    where("userId", "==", userId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) return null;
+
+  const docSnap = snapshot.docs[0];
+  const data = docSnap.data() as Omit<Review, "id">;
+
+  return {
+    id: docSnap.id,
+    ...data,
+  };
+};
+
+export const updateReviewById = async (reviewId: string, newContent: string, newRating: number) => {
+  const reviewRef = doc(db, "reviews", reviewId);
+  await updateDoc(reviewRef, {
+    content: newContent,
+    rating: newRating,
+  });
 };

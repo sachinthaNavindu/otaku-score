@@ -17,7 +17,6 @@ import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import { getTopRatedAnimeFromReviews } from "@/services/reviewService";
 
-
 const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -207,12 +206,19 @@ const Home = () => {
                           id: anime.animeId,
                           title: anime.animeTitle,
                           score: anime.averageRating,
-                          reviews: anime.reviewCount, 
-                          image:
-                            anime.imageUrl,
+                          reviews: anime.reviewCount,
+                          image: anime.imageUrl,
                         }}
                         onPress={() => {
-                          router.push("/(dashboard)/reviewDetails");
+                          router.push({
+                            pathname: "/(dashboard)/reviewDetails",
+                            params: {
+                              animeId: anime.animeId,
+                              title: anime.animeTitle,
+                              image: anime.imageUrl,
+                              rating: anime.averageRating,
+                            },
+                          });
                         }}
                       />
                     ))}
