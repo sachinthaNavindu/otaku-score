@@ -1,50 +1,82 @@
-# Welcome to your Expo app 👋
+# Otaku Score
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Rate • Review • Discover Anime**
 
-## Get started
+Otaku Score is a mobile app built with **React Native** and **Expo** that lets anime fans rate anime series/movies, write reviews, see community ratings, and manage their personal reviews.
 
-1. Install dependencies
+Users can:
+- View detailed anime information
+- Submit star ratings (1–5) + written reviews
+- Edit or delete their own reviews
+- Browse top community reviews for each anime
+- (planned) discover trending / popular anime
 
-   ```bash
-   npm install
-   ```
 
-2. Start the app
+## Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+| Layer              | Technology / Library                                 | Purpose / Notes                              |
+|--------------------|------------------------------------------------------|----------------------------------------------|
+| **Framework**      | React Native + Expo                                  | Cross-platform mobile development            |
+| **Language**       | TypeScript                                           | Type safety & better developer experience    |
+| **Navigation**     | Expo Router                                          | File-based routing, used in the project      |
+| **Backend**        | Firebase                                             | Authentication + Firestore (reviews storage) |
+| **Auth**           | Firebase Authentication                              | Email, Google, anonymous…                    |
+| **UI Components**  | React Native core + Expo Vector Icons                | Basic building blocks + Ionicons             |
+| **State (local)**  | React hooks (`useState`, `useEffect`)                | Component-level state                        |
+| **Data fetching**  | Custom service layer (`reviewService.ts`)            | Abstracts Firebase queries                   |
+| **Styling**        | Inline StyleSheet + dark theme                       | Consistent dark anime-style UI               |
+| **Image handling** | React Native `<Image>` with remote URIs              | Anime posters from external sources          |
+| **Development**    | Expo Go                                              | Fast development & testing on real devices   |
 
-In the output, you'll find options to open the app in a
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Features (Current)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- View anime details (title, poster, average rating)
+- See your own review (if exists) with **edit** & **delete** functionality
+- Read all community reviews sorted (currently latest / unfiltered)
+- Real-time-ish average rating calculation (done on fetch)
+- Clean dark-themed UI optimized for anime fans
 
-## Get a fresh project
+## Planned / Future Features
 
-When you're ready, run:
+- Anime search & discovery (Jikan API / AniList / official source?)
+- Trending / top rated lists
+- User profiles
+- Like / helpful review reactions
+- Spoiler tags in reviews
+- Push notifications for replies
+- Light mode toggle
+
+## Prerequisites
+
+- Node.js ≥ 18
+- npm / yarn / pnpm
+- Expo CLI (`npm install -g expo-cli`)
+- Android Studio / Xcode (for simulators) or physical device + Expo Go app
+
+## Android app 
+ `https://expo.dev/artifacts/eas/htttSXFhq6w4b18RoR1cyF.apk`
+## Getting Started
 
 ```bash
-npm run reset-project
-```
+# 1. Clone the repository
+git clone https://github.com/sachinthaNavindu/otaku-score.git
+cd otaku-score
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+# 2. Install dependencies
+npm install
 
-## Learn more
+# 3. Create Firebase project & enable Authentication + Firestore
+#    → Add web app to Firebase console
+#    → Download firebaseConfig and place it in /config/firebase.ts (or similar)
 
-To learn more about developing your project with Expo, look at the following resources:
+# 4. Start development server
+npx expo start
+# or
+npm run start
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# → Press a → Android emulator
+# → Press i → iOS simulator
+# → Scan QR code with Expo Go app on your phone
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+ 
